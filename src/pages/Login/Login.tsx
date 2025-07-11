@@ -62,7 +62,12 @@ const Login = () => {
           >
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
+
         </form>
+        <div className="mt-4 text-center">
+          <p className="text-sm text-white">Não tem uma conta? <a href="/cadastro-usuario" className="text-blue-400 hover:underline">Cadastre-se</a></p>
+          </div>
+
       </div>
     </div>
   );

@@ -3,7 +3,8 @@ import { useModal } from '../../Context/ModalContext';
 import ModalCliente from './ModalCliente';
 import getApi from '../../services/Api';
 import { Link } from 'react-router-dom';
-
+import { GrChapterNext } from "react-icons/gr";
+import { BsSkipBackward } from "react-icons/bs";
 interface Cliente {
   id: number;
   name: string;
@@ -23,6 +24,9 @@ const Clientes = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [filtro, setFiltro] = useState<string>("");
+    const [page, setPage] = useState(1)
+
+  const leadsPerPage = 4
 
   const fetchClientes = async () => {
     try {
@@ -36,7 +40,6 @@ const Clientes = () => {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchClientes();
@@ -59,6 +62,12 @@ const Clientes = () => {
   if (error) {
     return <p className="text-red-500">Erro: {error}</p>;
   }
+   const totalPages = Math.ceil(clientesFiltrados .length / leadsPerPage)
+  const paginatedLeads = clientesFiltrados .slice(
+    (page - 1) * leadsPerPage,
+    page * leadsPerPage
+  )
+
 
  const getStatusClass = (status: string) => {
   switch (status.toLowerCase()) {
@@ -120,8 +129,8 @@ const Clientes = () => {
           </tr>
         </thead>
 <tbody>
-  {clientesFiltrados.length > 0 ? (
-    clientesFiltrados.map((cliente) => (
+  {paginatedLeads.length > 0 ? (
+    paginatedLeads.map((cliente) => (
       <tr key={cliente.id}>
         <td className="py-2 px-4 border-b">
           <Link to={`/clientes/${cliente.id}/interacoes`} className="text-blue-600 hover:underline">
@@ -154,6 +163,32 @@ const Clientes = () => {
   )}
 </tbody>
       </table>
+      {/* Paginação */}
+      <div className="flex justify-center items-center gap-4 mt-6">
+  <button
+    onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+    disabled={page === 1}
+    className={`flex items-center gap-1 px-4 py-2 border rounded ${
+      page === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white'
+    }`}
+  >
+    <BsSkipBackward />
+    Anterior
+  </button>
+
+  <span className="text-gray-700 font-semibold">Página {page} de {totalPages}</span>
+
+  <button
+    onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+    disabled={page === totalPages}
+    className={`flex items-center gap-1 px-4 py-2 border rounded ${
+      page === totalPages ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white'
+    }`}
+  >
+    Próximo
+    <GrChapterNext />
+  </button>
+</div>
     </div>
   );
 };
