@@ -45,6 +45,21 @@ const Clientes = () => {
     fetchClientes();
   }, []);
 
+  const onDelete = async (id: number) => {
+    if (window.confirm("Tem certeza que deseja excluir este cliente?")) {
+      try {
+        const response = await api.delete(`/client/${id}`);
+        if (response.status === 204) {
+          setClientes(clientes.filter(cliente => cliente.id !== id));
+        } else {
+          alert("Erro ao excluir cliente. Tente novamente.");
+        }
+      } catch (error) {
+        console.error("Erro ao excluir cliente:", error);
+        alert("Erro ao excluir cliente. Tente novamente.");
+      }
+    }
+  };
   const clientesFiltrados = filtro
     ? clientes.filter((cliente) => {
         const filtroLower = filtro.toLowerCase();
@@ -89,8 +104,8 @@ const Clientes = () => {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold mb-4">Lista de Clientes</h1>
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer"
-         onClick={() => openModal(<ModalCliente onSuccess={fetchClientes} />)}
+        className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer"
+        onClick={() => openModal(<ModalCliente onSuccess={fetchClientes} />)}
         >
           Adicionar Cliente
         </button>
@@ -149,8 +164,8 @@ const Clientes = () => {
         </td>
         <td className="py-2 px-4 border-b">{cliente.observations?.toLocaleLowerCase()}</td>
         <td className="py-2 px-4 border-b flex flex-col">
-          <button className="bg-blue-500 text-white px-3 py-1 rounded mr-2 m-2 cursor-pointer">Editar</button>
-          <button className="bg-red-500 text-white px-3 py-1 rounded m-2 cursor-pointer">Excluir</button>
+          <button className="bg-blue-500 text-white px-3 py-1 rounded mr-2 m-2 cursor-pointer"  onClick={() => openModal(<ModalCliente cliente={cliente} onSuccess={fetchClientes} />)}>Editar</button>
+          <button className="bg-red-500 text-white px-3 py-1 rounded m-2 cursor-pointer" onClick={() => onDelete(cliente.id)}>Excluir</button>
         </td>
       </tr>
     ))
@@ -189,7 +204,7 @@ const Clientes = () => {
     <GrChapterNext />
   </button>
 </div>
-    </div>
+ </div>
   );
 };
 

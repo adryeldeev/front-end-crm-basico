@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useModal } from "../../Context/ModalContext";
 import getApi from "../../services/Api";
-interface ModalClienteProps {
-  onSuccess?: () => void;
-}
 interface ClienteForm {
+  id?: number;
   name: string;
   company: string;
   phone: string;
@@ -14,18 +12,23 @@ interface ClienteForm {
   email?: string;
 }
 
-const ModalCliente = ({ onSuccess }: ModalClienteProps) =>{
+interface ModalClienteProps {
+  onSuccess?: () => void;
+ cliente?: ClienteForm;
+}
+
+const ModalCliente = ({ onSuccess, cliente }: ModalClienteProps) =>{
   const { closeModal } = useModal();
   const api = getApi();
 
   const [formData, setFormData] = useState<ClienteForm>({
-    name: "",
-    company: "",
-    phone: "",
-    position: "",
-    status: "LEAD",
-    observations: "",
-    email: "",
+   name: cliente?.name || '',
+  email: cliente?.email || '',
+  phone: cliente?.phone || '',
+  position: cliente?.position || '',
+  company: cliente?.company || '',
+  observations: cliente?.observations || '',
+  status: cliente?.status || '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -33,37 +36,47 @@ const ModalCliente = ({ onSuccess }: ModalClienteProps) =>{
     setFormData({ ...formData, [name]: value });
   };
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!formData.name || !formData.company || !formData.phone || !formData.position) {
-      alert("Por favor, preencha todos os campos.");
-      return;
-    }
+  if (!formData.name || !formData.company || !formData.phone || !formData.position) {
+    alert("Por favor, preencha todos os campos obrigatórios.");
+    return;
+  }
 
-    try {
+  try {
+    if (cliente) {
+      // Edição
+      const response = await api.put(`/client/${cliente.id}`, formData);
+      if (response.status === 200 || response.status === 204) {
+        if (onSuccess) onSuccess();
+        closeModal();
+      } else {
+        alert("Erro ao editar cliente. Tente novamente.");
+      }
+    } else {
+      // Criação
       const response = await api.post("/client", formData);
-
       if (response.status === 201) {
-      if (onSuccess) onSuccess();
-        closeModal(); // ou o seu método de fechar o modal
+        if (onSuccess) onSuccess();
+        closeModal();
       } else {
         alert("Erro ao criar cliente. Tente novamente.");
       }
     }
-    catch (error: any) {
-  if (error.response) {
-    console.error("Erro de validação:", error.response.data);
-    alert(error.response.data?.error || "Erro ao criar cliente.");
-  } else {
-    console.error("Erro desconhecido:", error);
-    alert("Erro ao criar cliente. Tente novamente.");
+  } catch (error: any) {
+    if (error.response) {
+      console.error("Erro de validação:", error.response.data);
+      alert(error.response.data?.error || "Erro na operação.");
+    } else {
+      console.error("Erro desconhecido:", error);
+      alert("Erro inesperado. Tente novamente.");
+    }
   }
-}
-  };
+};
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-      <h2 className="text-xl font-bold">Novo Cliente</h2>
+      <h2 className="text-xl font-bold"> {cliente ? "Editar Cliente" : "Novo Cliente"}</h2>
 
       <input type="text" name="name" placeholder="Nome" className="border px-2 py-1 rounded"
         value={formData.name} onChange={handleChange} />
@@ -96,12 +109,11 @@ const ModalCliente = ({ onSuccess }: ModalClienteProps) =>{
       ></textarea>
 
       <button
-        type="submit"
-        className="bg-green-500 text-white px-4 py-2 rounded cursor-pointer"
-        disabled={!formData.name || !formData.company || !formData.phone || !formData.position}
-      >
-        Salvar
-      </button>
+  type="submit"
+  className="bg-green-500 text-white px-4 py-2 rounded cursor-pointer"
+>
+  {cliente ? "Salvar Alterações" : "Salvar"}
+</button>
 
       <button type="button" onClick={closeModal} className="bg-gray-500 text-white px-4 py-2 rounded cursor-pointer">
         Cancelar

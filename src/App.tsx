@@ -24,7 +24,6 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/clients" element={<Clientes />} />
           <Route path="/clientes/:id/interacoes" element={<Interacoes />} />
-          <Route path="/interactions" element={<Interacoes />} />
           <Route path="/logout" element={<Logout />} />
         </Route>
         </Route>

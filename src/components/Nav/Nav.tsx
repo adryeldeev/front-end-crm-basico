@@ -2,14 +2,12 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { MdOutlineSpaceDashboard } from 'react-icons/md';
 import { LuUsers } from 'react-icons/lu';
-import { TbMessages } from 'react-icons/tb';
 import { RiLogoutBoxRLine } from 'react-icons/ri';
 import { useAuth } from '../../Context/AuthProvider';
 
 const navItems = [
   { label: 'Dashboard', icon: <MdOutlineSpaceDashboard />, to: '/' },
   { label: 'Clients', icon: <LuUsers />, to: '/clients' },
-  { label: 'Interactions', icon: <TbMessages />, to: '/interactions' },
 ];
 
 const Nav = () => {
